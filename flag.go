@@ -1,6 +1,7 @@
 package fcli
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"math"
@@ -57,7 +58,7 @@ func (s *IntFlag) ReflectValue() (reflect.Value, error) {
 var (
 	// ErrValueOutOfRange is the error returned if the parsed value from the command-line arguments
 	// is the out of the range.
-	ErrValueOutOfRange = fmt.Errorf("value out of range")
+	ErrValueOutOfRange = errors.New("value out of range")
 )
 
 type sizedIntFlag struct {
@@ -418,9 +419,9 @@ func (s *StringFlag) ReflectValue() (reflect.Value, error) {
 
 var (
 	// ErrInvalidCustomFlag is the error returned if failed to parse the value of the custom flag.
-	ErrCannotUnmarshalCustomFlag = fmt.Errorf("cannot unmarshal custom flag")
+	ErrCannotUnmarshalCustomFlag = errors.New("cannot unmarshal custom flag")
 	// ErrInvalidCustomFlag is the error returned if the type of the flag is not proper.
-	ErrInvalidCustomFlag = fmt.Errorf("invalid custom flag")
+	ErrInvalidCustomFlag = errors.New("invalid custom flag")
 )
 
 // CustomFlagUnmarshaller should be implemented by the type for CustomFlag.

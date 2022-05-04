@@ -2,6 +2,7 @@ package fcli
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -13,9 +14,9 @@ import (
 )
 
 var (
-	ErrNotFunction       = fmt.Errorf("not function")
-	ErrCannotCutFuncDecl = fmt.Errorf("cannot cut func decl")
-	ErrInvalidFuncInfo   = fmt.Errorf("invalid func info")
+	ErrNotFunction       = errors.New("not function")
+	ErrCannotCutFuncDecl = errors.New("cannot cut func decl")
+	ErrInvalidFuncInfo   = errors.New("invalid func info")
 )
 
 // FuncName represents the function name and the location.
@@ -109,9 +110,10 @@ type funcDeclCutter struct {
 }
 
 func (s *funcDeclCutter) CutFuncDecl() (string, error) {
-	wrapErr := func(format string, v ...interface{}) error {
-		return fmt.Errorf("%w %s line %d %s", ErrCannotCutFuncDecl, s.file.Filename(), s.line, fmt.Sprintf(format, v...))
-	}
+	wrapErr := NewErrorWrapperBuilder().
+		Err(ErrCannotCutFuncDecl).
+		Msg("%s line %d", s.file.Filename(), s.line).
+		Build()
 
 	if _, ok := s.findFuncHead(); !ok {
 		return "", wrapErr("no func decl head")

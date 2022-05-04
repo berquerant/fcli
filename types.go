@@ -1,6 +1,7 @@
 package fcli
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -8,8 +9,8 @@ import (
 )
 
 var (
-	ErrBadTargetFunction = fmt.Errorf("bad target function")
-	ErrCallFailure       = fmt.Errorf("call failure")
+	ErrBadTargetFunction = errors.New("bad target function")
+	ErrCallFailure       = errors.New("call failure")
 )
 
 // TargetFunction specifies a function for CLI subcommand.
@@ -43,10 +44,15 @@ func NewTargetFunction(f any, opt ...Option) (TargetFunction, error) {
 		return nil, fmt.Errorf("%w not a function %v", ErrBadTargetFunction, f)
 	}
 	// find function
-	fname, _ := GetFuncName(f)
-	wrapErr := func(format string, v ...interface{}) error {
-		return fmt.Errorf("%w %s %s", ErrBadTargetFunction, fname.FullName(), fmt.Sprintf(format, v...))
+	fname, err := GetFuncName(f)
+	if err != nil {
+		return nil, fmt.Errorf("%w cannot get function name from %v", ErrBadTargetFunction, f)
 	}
+
+	wrapErr := NewErrorWrapperBuilder().
+		Err(ErrBadTargetFunction).
+		Msg("%s", fname.FullName()).
+		Build()
 	if t.IsVariadic() {
 		return nil, wrapErr("variadic")
 	}

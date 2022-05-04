@@ -2,6 +2,7 @@
 package fcli
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"sort"
@@ -9,8 +10,8 @@ import (
 )
 
 var (
-	ErrCLINotEnoughArguments = fmt.Errorf("not enough arguments")
-	ErrCLICommandNotFound    = fmt.Errorf("command not found")
+	ErrCLINotEnoughArguments = errors.New("not enough arguments")
+	ErrCLICommandNotFound    = errors.New("command not found")
 
 	// NilUsage is noop.
 	// Disable Usage of CLI by CLI.Usage(NilUsage).
