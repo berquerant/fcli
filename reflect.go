@@ -270,3 +270,27 @@ func (s *funcInfo) In(i int) FuncParam {
 		name: s.inNames[i],
 	}
 }
+
+var (
+	ErrBuildFuncInfo = errors.New("failed to build func info")
+)
+
+func BuildFuncInfo(filename string, lineNumber int) (FuncInfo, error) {
+	wrapErr := NewErrorWrapperBuilder().
+		Err(ErrBuildFuncInfo).
+		Msg("%s %d", filename, lineNumber).
+		Build()
+	lines, err := NewFileLines(filename)
+	if err != nil {
+		return nil, wrapErr("read file %w", err)
+	}
+	src, err := NewFuncDeclCutter(lines, lineNumber).CutFuncDecl()
+	if err != nil {
+		return nil, wrapErr("cut decl %w", err)
+	}
+	info, err := NewFuncInfo(src)
+	if err != nil {
+		return nil, wrapErr("func info %w", err)
+	}
+	return info, nil
+}

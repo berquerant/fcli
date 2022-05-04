@@ -73,7 +73,7 @@ func (s *cliMap) start(arguments ...string) error {
 }
 
 func (s *cliMap) printUsage(err error) {
-	fmt.Fprintln(os.Stderr, err)
+	fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 	if s.usage != nil {
 		s.usage()
 		return

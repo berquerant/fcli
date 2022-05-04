@@ -17,6 +17,7 @@ var (
 type TargetFunction interface {
 	Name() string
 	// Call calls the function by flag arguments.
+	// Returns ErrCallFailure if failed to call the function.
 	Call(arguments []string) error
 }
 
@@ -60,17 +61,9 @@ func NewTargetFunction(f any, opt ...Option) (TargetFunction, error) {
 		return nil, wrapErr("has output parameters")
 	}
 	// read function AST
-	fileLines, err := NewFileLines(fname.File())
+	funcInfo, err := BuildFuncInfo(fname.File(), fname.Line())
 	if err != nil {
-		return nil, wrapErr("read file %w", err)
-	}
-	declSrc, err := NewFuncDeclCutter(fileLines, fname.Line()).CutFuncDecl()
-	if err != nil {
-		return nil, wrapErr("decl cut %w", err)
-	}
-	funcInfo, err := NewFuncInfo(declSrc)
-	if err != nil {
-		return nil, wrapErr("func info %w", err)
+		return nil, wrapErr("build func info %w", err)
 	}
 	// generate flags from function
 	flags := make([]Flag, t.NumIn())
@@ -83,12 +76,16 @@ func NewTargetFunction(f any, opt ...Option) (TargetFunction, error) {
 		flags[i] = ff(funcInfo.In(i).Name())
 	}
 	// apply options
-	config := Config{
-		ErrorHandling: flag.ExitOnError,
-	}
+	config := NewConfigBuilder().
+		ErrorHandling(flag.ExitOnError).
+		CommandName(fname.String()).
+		Build()
 	config.Apply(opt...)
 	// init flags
-	flagSet := flag.NewFlagSet(fname.String(), config.ErrorHandling)
+	flagSet := flag.NewFlagSet(
+		config.CommandName.Get(),
+		config.ErrorHandling.Get(),
+	)
 	if doc := funcInfo.Doc(); doc != "" {
 		flagSet.Usage = func() {
 			fmt.Fprintf(os.Stderr, doc)
@@ -101,7 +98,7 @@ func NewTargetFunction(f any, opt ...Option) (TargetFunction, error) {
 	return &targetFunction{
 		f:       f,
 		flags:   flags,
-		config:  &config,
+		config:  config,
 		flagSet: flagSet,
 	}, nil
 }
