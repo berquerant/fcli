@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+
+	"github.com/berquerant/fcli/internal/ierrors"
 )
 
 var (
@@ -50,7 +52,7 @@ func NewTargetFunction(f any, opt ...Option) (TargetFunction, error) {
 		return nil, fmt.Errorf("%w cannot get function name from %v", ErrBadTargetFunction, f)
 	}
 
-	wrapErr := NewErrorWrapperBuilder().
+	wrapErr := ierrors.NewWrapperBuilder().
 		Err(ErrBadTargetFunction).
 		Msg("%s", fname.FullName()).
 		Build()

@@ -11,6 +11,8 @@ import (
 	"reflect"
 	"runtime"
 	"strings"
+
+	"github.com/berquerant/fcli/internal/ierrors"
 )
 
 var (
@@ -110,7 +112,7 @@ type funcDeclCutter struct {
 }
 
 func (s *funcDeclCutter) CutFuncDecl() (string, error) {
-	wrapErr := NewErrorWrapperBuilder().
+	wrapErr := ierrors.NewWrapperBuilder().
 		Err(ErrCannotCutFuncDecl).
 		Msg("%s line %d", s.file.Filename(), s.line).
 		Build()
@@ -276,7 +278,7 @@ var (
 )
 
 func BuildFuncInfo(filename string, lineNumber int) (FuncInfo, error) {
-	wrapErr := NewErrorWrapperBuilder().
+	wrapErr := ierrors.NewWrapperBuilder().
 		Err(ErrBuildFuncInfo).
 		Msg("%s %d", filename, lineNumber).
 		Build()

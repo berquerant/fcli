@@ -1,35 +1,35 @@
-package fcli
+package ierrors
 
 import (
 	"errors"
 	"fmt"
 )
 
-// ErrorWrapper returns a new error.
-type ErrorWrapper func(format string, v ...any) error
+// Wrapper returns a new error.
+type Wrapper func(format string, v ...any) error
 
-type ErrorWrapperBuilder struct {
+type WrapperBuilder struct {
 	err error
 	msg string
 }
 
-func NewErrorWrapperBuilder() *ErrorWrapperBuilder {
-	return &ErrorWrapperBuilder{}
+func NewWrapperBuilder() *WrapperBuilder {
+	return &WrapperBuilder{}
 }
 
 // Err sets an error wraps new error.
-func (s *ErrorWrapperBuilder) Err(err error) *ErrorWrapperBuilder {
+func (s *WrapperBuilder) Err(err error) *WrapperBuilder {
 	s.err = err
 	return s
 }
 
 // Msg sets a common message added to new error.
-func (s *ErrorWrapperBuilder) Msg(format string, v ...any) *ErrorWrapperBuilder {
+func (s *WrapperBuilder) Msg(format string, v ...any) *WrapperBuilder {
 	s.msg = fmt.Sprintf(format, v...)
 	return s
 }
 
-func (s *ErrorWrapperBuilder) Build() ErrorWrapper {
+func (s *WrapperBuilder) Build() Wrapper {
 	return func(format string, v ...any) error {
 		x := fmt.Sprintf(format, v...)
 		if s.msg != "" {
