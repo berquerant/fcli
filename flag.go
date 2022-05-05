@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"math"
 	"reflect"
+
+	"github.com/berquerant/fcli/internal/logger"
 )
 
 // Flag is a command-line flag.
@@ -475,6 +477,7 @@ func (s *CustomFlag) parse(v string) error {
 	if err != nil {
 		return fmt.Errorf("%w UnmarshalFlag() %s %s %v", ErrCannotUnmarshalCustomFlag, s.name, v, err)
 	}
+	logger.Trace("CustomFlag %s parse %s into %#v", s.Name(), v, p)
 	s.value = p
 	return nil
 }
@@ -501,6 +504,8 @@ func NewFlagFactory(v any) (FlagFactory, bool) {
 		}
 		return reflect.TypeOf(v)
 	}()
+
+	logger.Trace("NewFlagFactory %v %#v", t.Kind(), v)
 
 	if f, ok := newCustomFlag(t); ok {
 		return f, true

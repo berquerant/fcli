@@ -32,7 +32,7 @@ func main() {
 
 ```
 ❯ ./do
-not enough arguments
+Error: not enough arguments
 Usage: do {bye,greet}
 
 ❯ ./do greet -h
@@ -51,4 +51,4 @@ Bye!
 
 ## Examples
 
-[calc](./example/README.md)
+[examples](./examples/)

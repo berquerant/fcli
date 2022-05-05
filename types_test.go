@@ -1,6 +1,8 @@
 package fcli_test
 
 import (
+	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"strings"
@@ -41,7 +43,7 @@ type targetFunctionCallTestcase struct {
 }
 
 func variadic(_ int, _ ...any)            {}
-func withOutputParam() error              { return nil }
+func withOutputParam() any                { return nil }
 func unsupportedInputParamType(_ uintptr) {}
 func withoutInputParams()                 {}
 func singleIntInput(i int) {
@@ -85,7 +87,19 @@ func customFlagFailure(v *failUnmarshaller) {}
 
 func int8LimitCheck(i8 int8) {}
 
+func withContextAndError(ctx context.Context) error {
+	v := ctx.Value("ctx")
+	setTargetFunctionTestcaseResult([]any{v})
+	return nil
+}
+
+var errReturnError = errors.New("return error")
+
+func returnError() error { return errReturnError }
+
 func TestTargetFunctionCall(t *testing.T) {
+	fcli.SetVerboseLevel(2)
+	defer fcli.SetVerboseLevel(0)
 	for _, tc := range []targetFunctionCallTestcase{
 		{
 			name:   "not a function",
@@ -98,7 +112,7 @@ func TestTargetFunctionCall(t *testing.T) {
 			newErr: fcli.ErrBadTargetFunction,
 		},
 		{
-			name:   "with output params",
+			name:   "with output params not error",
 			f:      withOutputParam,
 			newErr: fcli.ErrBadTargetFunction,
 		},
@@ -111,6 +125,18 @@ func TestTargetFunctionCall(t *testing.T) {
 			name:      "no input params",
 			f:         withoutInputParams,
 			wantArgsP: func(_ *testing.T, _ []any) {},
+		},
+		{
+			name:    "return error",
+			f:       returnError,
+			callErr: errReturnError,
+		},
+		{
+			name: "context value",
+			f:    withContextAndError,
+			wantArgsP: func(t *testing.T, v []any) {
+				assert.Equal(t, []any{1}, v)
+			},
 		},
 		{
 			name: "int",
@@ -221,7 +247,7 @@ func TestTargetFunctionCall(t *testing.T) {
 				t.Logf("new error %v", err)
 				return
 			}
-			err = s.Call(tc.args)
+			err = s.CallWithContext(context.WithValue(context.TODO(), "ctx", 1), tc.args)
 			assert.ErrorIs(t, err, tc.callErr, "call error")
 			if tc.callErr != nil {
 				t.Logf("call error %v", err)

@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/berquerant/fcli/internal/ierrors"
+	"github.com/berquerant/fcli/internal/logger"
 )
 
 var (
@@ -290,9 +291,11 @@ func BuildFuncInfo(filename string, lineNumber int) (FuncInfo, error) {
 	if err != nil {
 		return nil, wrapErr("cut decl %w", err)
 	}
+	logger.Trace("BuildFuncInfo %s %d\n%s", filename, lineNumber, src)
 	info, err := NewFuncInfo(src)
 	if err != nil {
 		return nil, wrapErr("func info %w", err)
 	}
+	logger.Trace("BuildFuncInfo %s %d %#v", filename, lineNumber, info)
 	return info, nil
 }

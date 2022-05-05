@@ -1,25 +1,20 @@
 # Example: calc
 
-Usage.
-
 ```
 ❯ ./calc -h
-command not found -h
-Usage: calc {mult,sum}
+Error: command not found -h
+Usage: calc {mult,pow,sum}
+exit status 1
 
-❯ ./calc mult -h
-mult multiplies two complex numbers.
+❯ ./calc pow -h
+Usage of pow:
+  -base int
+
+  -exp int
+
 
 ❯ ./calc sum -h
 sum prints the sum of args.
-```
-
-No arguments
-
-```
-❯ ./calc
-not enough arguments
-Usage: calc {mult,sum}
 ```
 
 `sum` without arguments prints 0 because the default value of `intList` is `intList([]int{})` from `intList.FlagZero()`.
@@ -48,4 +43,8 @@ Normal cases:
 
 ❯ ./calc mult -a 1,2 -b 3,4
 (-5+10i)
+
+❯ ./calc pow -base 2 -exp 10
+1024
+
 ```

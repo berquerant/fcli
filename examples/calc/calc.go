@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"math"
+	"os"
 	"strconv"
 	"strings"
 
@@ -60,6 +62,11 @@ func mult(a, b comp) {
 	fmt.Println(c)
 }
 
+func intPower(base, exp int) {
+	r := math.Pow(float64(base), float64(exp))
+	fmt.Println(int(r))
+}
+
 func fail(err error) {
 	if err != nil {
 		panic(err)
@@ -70,5 +77,8 @@ func main() {
 	cli := fcli.NewCLI("calc")
 	fail(cli.Add(sum))
 	fail(cli.Add(mult))
-	_ = cli.Start()
+	fail(cli.Add(intPower, fcli.WithCommandName("pow")))
+	if cli.Start() != nil {
+		os.Exit(1)
+	}
 }
