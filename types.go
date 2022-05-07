@@ -19,7 +19,10 @@ var (
 
 // TargetFunction specifies a function for CLI subcommand.
 type TargetFunction interface {
+	// Name returns the name of the function.
 	Name() string
+	// Unwrap returns raw function.
+	Unwrap() any
 	// Call calls the function by flag arguments.
 	// Returns ErrCallFailure if failed to call the function.
 	Call(arguments []string) error
@@ -113,6 +116,7 @@ func NewTargetFunction(f any, opt ...Option) (TargetFunction, error) {
 }
 
 func (s *targetFunction) Name() string { return s.flagSet.Name() }
+func (s *targetFunction) Unwrap() any  { return s.f }
 
 func (s *targetFunction) Call(arguments []string) (rerr error) {
 	return s.CallWithContext(context.Background(), arguments)

@@ -18,8 +18,16 @@ var (
 
 	// NilUsage is noop.
 	// Disable Usage of CLI by CLI.Usage(NilUsage).
-	NilUsage       = func() {}
-	DefaultOnError = func(_ error) int { return Cusage | Cerror }
+	NilUsage = func() {}
+	// DefaultOnError prints the error, usage and returns the error.
+	DefaultOnError = func(err error) int {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		return Cusage | Cerror
+	}
+)
+
+type (
+	UsageFunc = func()
 )
 
 const (
@@ -45,11 +53,13 @@ type CLI interface {
 }
 
 func NewCLI(name string, opt ...Option) CLI {
-	return &cliMap{
+	s := &cliMap{
 		name:     name,
 		commands: map[string]TargetFunction{},
 		onError:  DefaultOnError,
 	}
+	s.usage = s.defaultUsage
+	return s
 }
 
 type cliMap struct {
@@ -63,7 +73,7 @@ func (s *cliMap) StartWithContext(ctx context.Context, arguments ...string) erro
 	if err := s.start(ctx, arguments...); err != nil {
 		r := s.onError(err)
 		if r&Cusage != 0 {
-			s.printUsage(err)
+			s.usage()
 		}
 		if r&Cerror != 0 {
 			return err
@@ -96,15 +106,6 @@ func (s *cliMap) start(ctx context.Context, arguments ...string) error {
 	}
 	logger.Debug("Call %s with %#v", cmd.Name(), args[1:])
 	return cmd.CallWithContext(ctx, args[1:])
-}
-
-func (s *cliMap) printUsage(err error) {
-	fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-	if s.usage != nil {
-		s.usage()
-		return
-	}
-	s.defaultUsage()
 }
 
 func (s *cliMap) defaultUsage() {

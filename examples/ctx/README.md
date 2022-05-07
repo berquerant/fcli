@@ -20,6 +20,5 @@ Error but exit status is 0, because `fcli.Cusage` returned by the function set b
 
 ```
 ❯ ./ctx
-Error: not enough arguments
 Usage: ctx {sqrt,wait}
 ```
