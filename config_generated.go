@@ -20,6 +20,12 @@ func (s *ConfigItem[T]) Get() T {
 	}
 	return s.defaultValue
 }
+func (s *ConfigItem[T]) Default() T {
+	return s.defaultValue
+}
+func (s *ConfigItem[T]) IsModified() bool {
+	return s.modified
+}
 func NewConfigItem[T any](defaultValue T) *ConfigItem[T] {
 	return &ConfigItem[T]{
 		defaultValue: defaultValue,
